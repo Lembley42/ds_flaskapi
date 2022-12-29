@@ -6,7 +6,7 @@ gevent
 gunicorn
 
 # JSONEncoder.py
-bson
+
 
 # app.py
 flask
