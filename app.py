@@ -47,6 +47,9 @@ app.register_blueprint(mongodb_task_unblock)
 mongodb_task_delete = Blueprint('mongodb_task_delete', __name__, url_prefix='/mongodb')
 app.register_blueprint(mongodb_task_delete)
 
+mongodb_task_schedule = Blueprint('mongodb_task_schedule', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_schedule)
+
 mongodb_task_create = Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb')
 app.register_blueprint(mongodb_task_create)
 
@@ -112,7 +115,7 @@ def Query_MongoDB(db, collection, query):
 ## DB = customer_name
 ## Collection = task_type
 ## Document ID = task_id
-@mongodb_bp.route('/task/details/', methods=['GET'])
+@mongodb_task_details.route('/task/details/', methods=['GET'])
 def Get_Task_Details():
     # JSON body of the request
     task = request.get_json()
