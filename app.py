@@ -28,6 +28,8 @@ app = Flask(__name__)
 # Register blueprints
 mongodb_bp = Blueprint('mongodb', __name__, url_prefix='/mongodb')
 pubsub_bp = Blueprint('pubsub', __name__, url_prefix='/pubsub')
+app.register_blueprint(mongodb_bp)
+app.register_blueprint(pubsub_bp)
 
 
 
@@ -82,8 +84,11 @@ def Query_MongoDB(db, collection, query):
 ## DB = customer_name
 ## Collection = task_type
 ## Document ID = task_id
-@mongodb_bp.route('/task/details/<task>', methods=['GET'])
-def Get_Task_Details(task):
+@mongodb_bp.route('/task/details/', methods=['GET'])
+def Get_Task_Details():
+    # JSON body of the request
+    task = request.get_json()
+
     if len(task.split('/')) != 3:
         return 'Invalid task format'
 
