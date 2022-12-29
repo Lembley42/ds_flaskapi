@@ -10,11 +10,11 @@ from pubsub import PubSub
 
 
 # Get all environment variables
-PROJECT_ID = os.environ.get('PROJECT_ID', 'datastack-311315')
-ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', 'JJgw-NhExNoQi2LkoQZmUZ3pRW3zgVhei7vX8nFq4Ww=')
+PROJECT_ID = os.environ.get('PROJECT_ID')
+ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
 
-MONGO_USER = os.environ.get('MONGO_USER', 'datastack')
-MONGO_PASS = os.environ.get('MONGO_PASS', 'VE9J2Ki50NaBpWd6')
+MONGO_USER = os.environ.get('MONGO_USER')
+MONGO_PASS = os.environ.get('MONGO_PASS')
 
 # Decrypt Google Services authentication file and store it in the environment variables
 Decrypt_File('service_authentication_file.bin', 'service_authentication_file.json', ENCRYPTION_KEY)
