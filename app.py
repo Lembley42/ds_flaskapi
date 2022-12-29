@@ -26,10 +26,38 @@ app = Flask(__name__)
 
 
 # Register blueprints
-mongodb_bp = Blueprint('mongodb', __name__, url_prefix='/mongodb')
-pubsub_bp = Blueprint('pubsub', __name__, url_prefix='/pubsub')
-app.register_blueprint(mongodb_bp)
-app.register_blueprint(pubsub_bp)
+mongodb_storage_upload = Blueprint('mongodb_storage_upload', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_storage_upload)
+
+mongodb_storage_query = Blueprint('mongodb_storage_query', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_storage_query)
+
+mongodb_task_details = Blueprint('mongodb_task_details', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_details)
+
+mongodb_task_get = Blueprint('mongodb_task_get', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_get)
+
+mongodb_task_block = Blueprint('mongodb_task_block', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_block)
+
+mongodb_task_unblock = Blueprint('mongodb_task_unblock', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_unblock)
+
+mongodb_task_delete = Blueprint('mongodb_task_delete', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_delete)
+
+mongodb_task_create = Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_create)
+
+mongodb_task_exists = Blueprint('mongodb_task_exists', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_exists)
+
+mongodb_task_log = Blueprint('mongodb_task_log', __name__, url_prefix='/mongodb')
+app.register_blueprint(mongodb_task_log)
+
+pubsub_publish = Blueprint('pubsub_publish', __name__, url_prefix='/pubsub')
+app.register_blueprint(pubsub_publish)
 
 
 
@@ -47,7 +75,7 @@ pubsub = PubSub(PROJECT_ID)
 ## DB = customer_name
 ## Collection = data_type
 ## Document ID = Random
-@mongodb_bp.route('/storage/upload/<db>/<collection>', methods=['POST'])
+@mongodb_storage_upload.route('/storage/upload/<db>/<collection>', methods=['POST'])
 def Upload_MongoDB(db, collection):
     # Select the database
     db = mongoclient_store[db]
@@ -61,7 +89,7 @@ def Upload_MongoDB(db, collection):
     return f'Successfully uploaded JSON documents to {collection} collection'
 
 
-@mongodb_bp.route('/storage/query/<db>/<collection>/<query>')
+@mongodb_storage_query.route('/storage/query/<db>/<collection>/<query>')
 def Query_MongoDB(db, collection, query):
     # Decode the query string
     query = unquote(query)
@@ -104,7 +132,7 @@ def Get_Task_Details():
     }
 
 
-@mongodb_bp.route('/task/get/<db>/<collection>/<task_id>', methods=['GET'])
+@mongodb_task_get.route('/task/get/<db>/<collection>/<task_id>', methods=['GET'])
 def Get_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -116,7 +144,7 @@ def Get_Task(db, collection, task_id):
     return task
 
 
-@mongodb_bp.route('/task/block/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_block.route('/task/block/<db>/<collection>/<task_id>', methods=['POST'])
 def Block_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -132,7 +160,7 @@ def Block_Task(db, collection, task_id):
     return f'Successfully blocked task {task_id}'
 
 
-@mongodb_bp.route('/task/unblock/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_unblock.route('/task/unblock/<db>/<collection>/<task_id>', methods=['POST'])
 def Unblock_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -148,7 +176,7 @@ def Unblock_Task(db, collection, task_id):
     return f'Successfully unblocked task {task_id}'
 
 
-@mongodb_bp.route('/task/delete/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_delete.route('/task/delete/<db>/<collection>/<task_id>', methods=['POST'])
 def Delete_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -160,7 +188,7 @@ def Delete_Task(db, collection, task_id):
     return f'Successfully deleted task {task_id}'
 
 
-@mongodb_bp.route('/task/schedule/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_schedule.route('/task/schedule/<db>/<collection>/<task_id>', methods=['POST'])
 def Schedule_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -177,7 +205,7 @@ def Schedule_Task(db, collection, task_id):
     return f'Successfully scheduled task {task_id}'
 
 
-@mongodb_bp.route('/task/create/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_create.route('/task/create/<db>/<collection>/<task_id>', methods=['POST'])
 def Create_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -191,7 +219,7 @@ def Create_Task(db, collection, task_id):
     return f'Successfully created task {task_id}'
 
 
-@mongodb_bp.route('/task/exists/<db>/<collection>/<task_id>', methods=['GET'])
+@mongodb_task_exists.route('/task/exists/<db>/<collection>/<task_id>', methods=['GET'])
 def Task_Exists(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -206,7 +234,7 @@ def Task_Exists(db, collection, task_id):
         return 'False'
     
 
-@mongodb_bp.route('/task/log/<db>/<collection>/<task_id>', methods=['POST'])
+@mongodb_task_log.route('/task/log/<db>/<collection>/<task_id>', methods=['POST'])
 def Log_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -228,7 +256,7 @@ def Log_Task(db, collection, task_id):
 
 
 # PubSub API
-@pubsub_bp.route('/publish/<customer_name>/<task_type>/<task_id>')
+@pubsub_publish.route('/publish/<customer_name>/<task_type>/<task_id>')
 def Publish_PubSub(customer_name, task_type, task_id):
     # Get the topic path
     topic_path = pubsub.Get_Topic_Path(f'ds_{task_type}_topic')
