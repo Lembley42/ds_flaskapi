@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request, Blueprint, current_app
 from datetime import datetime
 from urllib.parse import unquote
-from bson import ObjectId
 import json, os, pymongo
 
 # Local Imports
@@ -173,7 +172,7 @@ def Schedule_Task(db, collection, task_id):
     return f'Successfully scheduled task {task_id}'
 
 
-@mongodb_bp.route('/task/create/<db>/<collection>/<task_type>/<task_id>', methods=['POST'])
+@mongodb_bp.route('/task/create/<db>/<collection>/<task_id>', methods=['POST'])
 def Create_Task(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
@@ -181,9 +180,6 @@ def Create_Task(db, collection, task_id):
     collection = db[collection]
     # Get the task document
     task = request.get_json()
-    # Add Task_ID to the task document
-    task_id = ObjectId(task_id)
-    task['_id'] = task_id
     # Create the task document
     collection.insert_one(task)
     # Return a success message

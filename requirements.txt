@@ -8,7 +8,7 @@ gunicorn
 # JSONEncoder.py
 bson
 
-# main.py
+# app.py
 flask
 pymongo
 
