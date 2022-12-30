@@ -134,7 +134,7 @@ def Block_Task(db, collection, task_id):
     # Select the collection
     collection = db[collection]
     # Get the task document
-    task = collection
+    task = collection.find_one({'_id': task_id})
     # Block the task
     task['running'] = True
     # Update the task document
@@ -150,7 +150,7 @@ def Unblock_Task(db, collection, task_id):
     # Select the collection
     collection = db[collection]
     # Get the task document
-    task = collection
+    task = collection.find_one({'_id': task_id})
     # Unblock the task
     task['running'] = False
     # Update the task document
@@ -178,7 +178,7 @@ def Schedule_Task(db, collection, task_id):
     # Select the collection
     collection = db[collection]
     # Get the task document
-    task = collection
+    task = collection.find_one({'_id': task_id})
     # Schedule the task
     # Get interval from and set next_run to now + interval
     task['next_run'] = datetime.now() + task['interval']
@@ -218,8 +218,9 @@ def Create_Task_By_Key(db, collection, key):
     # If a task document exists, return an error message
     if existing_task:
         return f'Task with {key}:{task[key]} already exists'
-    # If a task document does not exist, create the task document
-    collection.insert_one(task)
+    else:
+        # If a task document does not exist, create the task document
+        collection.insert_one(task)
     # Return a success message
     return f'Successfully created task'
 
