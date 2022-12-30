@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, Blueprint, current_app
 from datetime import datetime
 from urllib.parse import unquote
-import json, os, pymongo
+import json, os, pymongo, urllib
 
 # Local Imports
 from filedecryption import Decrypt_File
@@ -14,6 +14,9 @@ ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
 
 MONGO_USER = os.environ.get('MONGO_USER')
 MONGO_PASS = os.environ.get('MONGO_PASS')
+MONGO_STORE_USER = os.environ.get('MONGO_STORE_USER')
+MONGO_STORE_PASS = os.environ.get('MONGO_STORE_PASS')
+
 
 # Decrypt Google Services authentication file and store it in the environment variables
 Decrypt_File('service_authentication_file.bin', 'service_authentication_file.json', ENCRYPTION_KEY)
@@ -33,6 +36,7 @@ blueprints = [
     Blueprint('mongodb_task_delete', __name__, url_prefix='/mongodb/task/delete/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_schedule', __name__, url_prefix='/mongodb/task/schedule/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<task_id>'),
+    Blueprint('mongodb_task_create_by_key', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<key>'),
     Blueprint('mongodb_task_exists', __name__, url_prefix='/mongodb/task/exists/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_log', __name__, url_prefix='/mongodb/task/log/<db>/<collection>/<task_id>'),
     Blueprint('pubsub_publish', __name__, url_prefix='/pubsub/publish/<customer_name>/<task_type>/<task_id>')
@@ -43,7 +47,7 @@ for blueprint in blueprints:
 
 # Connect to the MongoDB server
 mongoclient_tasks = pymongo.MongoClient(f"mongodb+srv://{MONGO_USER}:{MONGO_PASS}@datastack-mongodb-tasks.yt2p9sd.mongodb.net/?retryWrites=true&w=majority")
-mongoclient_store = None # Use later for Storage of data
+mongoclient_store = pymongo.MongoClient(f'mongodb+srv://{MONGO_STORE_USER}:{MONGO_STORE_PASS}@datastack-mongodb-528cfa2f.mongo.ondigitalocean.com/datastack-mongodb-storage?replicaSet=datastack-mongodb&tls=true&authSource=admin')
 
 # Connect to Google Services
 pubsub = PubSub(PROJECT_ID)
@@ -185,7 +189,7 @@ def Schedule_Task(db, collection, task_id):
 
 
 @app.route('/mongodb/task/create/<db>/<collection>/<task_id>', methods=['POST'])
-def Create_Task(db, collection, task_id):
+def Create_Task_By_ID(db, collection, task_id):
     # Select the database
     db = mongoclient_tasks[db]
     # Select the collection
@@ -196,6 +200,28 @@ def Create_Task(db, collection, task_id):
     collection.insert_one(task)
     # Return a success message
     return f'Successfully created task {task_id}'
+
+
+@app.route('/mongodb/task/create/<db>/<collection>/<key>', methods=['POST'])
+def Create_Task_By_Key(db, collection, task_id, key, value):
+    # Select the database
+    db = mongoclient_tasks[db]
+    # Select the collection
+    collection = db[collection]
+    # Get the task document
+    task = request.get_json()
+    # Query the database for an existing task document with the given key and value
+    query = {key: task[key]}
+    existing_task = collection.find_one(query)
+    # If a task document exists, return an error message
+    if existing_task:
+        return f'Task with {key} {value} already exists'
+    # If a task document does not exist, create the task document
+    collection.insert_one(task)
+    # Return a success message
+    return f'Successfully created task {task_id}'
+
+
 
 
 @app.route('/mongodb/task/exists/<db>/<collection>/<task_id>', methods=['GET'])
