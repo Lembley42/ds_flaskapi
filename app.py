@@ -8,7 +8,6 @@ from filedecryption import Decrypt_File
 from JSONEncoder import JSONEncoder
 from pubsub import PubSub
 
-
 # Get all environment variables
 PROJECT_ID = os.environ.get('PROJECT_ID')
 ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
@@ -23,9 +22,7 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'service_authentication_file.json
 # Create the Flask app
 app = Flask(__name__)
 
-
-
-# Register blueprints
+# Set up blueprints for every route
 blueprints = [
     Blueprint('mongodb_storage_upload', __name__, url_prefix='/mongodb/storage/upload/<db>/<collection>'),
     Blueprint('mongodb_storage_query', __name__, url_prefix='/mongodb//storage/query/<db>/<collection>/<query>'),
@@ -40,43 +37,13 @@ blueprints = [
     Blueprint('mongodb_task_log', __name__, url_prefix='/mongodb/task/log/<db>/<collection>/<task_id>'),
     Blueprint('pubsub_publish', __name__, url_prefix='/pubsub/publish/<customer_name>/<task_type>/<task_id>')
 ]
-
+# Register all blueprints
 for blueprint in blueprints:
     app.register_blueprint(blueprint)
-
-
-#mongodb_storage_upload = Blueprint('mongodb_storage_upload', __name__, url_prefix='/mongodb/storage/upload/<db>/<collection>')
-#mongodb_storage_query = Blueprint('mongodb_storage_query', __name__, url_prefix='/mongodb//storage/query/<db>/<collection>/<query>')
-#mongodb_task_details = Blueprint('mongodb_task_details', __name__, url_prefix='/mongodb/task/details/')
-#mongodb_task_get = Blueprint('mongodb_task_get', __name__, url_prefix='/mongodb/task/get/<db>/<collection>/<task_id>')
-#mongodb_task_block = Blueprint('mongodb_task_block', __name__, url_prefix='/mongodb/task/block/<db>/<collection>/<task_id>')
-#mongodb_task_unblock = Blueprint('mongodb_task_unblock', __name__, url_prefix='/mongodb/task/unblock/<db>/<collection>/<task_id>')
-#mongodb_task_delete = Blueprint('mongodb_task_delete', __name__, url_prefix='/mongodb/task/delete/<db>/<collection>/<task_id>')
-#mongodb_task_schedule = Blueprint('mongodb_task_schedule', __name__, url_prefix='/mongodb/task/schedule/<db>/<collection>/<task_id>')
-#mongodb_task_create = Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<task_id>')
-#mongodb_task_exists = Blueprint('mongodb_task_exists', __name__, url_prefix='/mongodb/task/exists/<db>/<collection>/<task_id>')
-#mongodb_task_log = Blueprint('mongodb_task_log', __name__, url_prefix='/mongodb/task/log/<db>/<collection>/<task_id>')
-#pubsub_publish = Blueprint('pubsub_publish', __name__, url_prefix='/pubsub/publish/<customer_name>/<task_type>/<task_id>')
-#app.register_blueprint(mongodb_storage_upload)
-#app.register_blueprint(mongodb_storage_query)
-#app.register_blueprint(mongodb_task_details)
-#app.register_blueprint(mongodb_task_get)
-#app.register_blueprint(mongodb_task_block)
-#app.register_blueprint(mongodb_task_unblock)
-#app.register_blueprint(mongodb_task_delete)
-#app.register_blueprint(mongodb_task_schedule)
-#app.register_blueprint(mongodb_task_create)
-#app.register_blueprint(mongodb_task_exists)
-#app.register_blueprint(mongodb_task_log)
-#app.register_blueprint(pubsub_publish)
-
-
-
 
 # Connect to the MongoDB server
 mongoclient_tasks = pymongo.MongoClient(f"mongodb+srv://{MONGO_USER}:{MONGO_PASS}@datastack-mongodb-tasks.yt2p9sd.mongodb.net/?retryWrites=true&w=majority")
 mongoclient_store = None # Use later for Storage of data
-
 
 # Connect to Google Services
 pubsub = PubSub(PROJECT_ID)
@@ -275,8 +242,6 @@ def Publish_PubSub(customer_name, task_type, task_id):
     pubsub.Publish(topic_path, task_id, f'{customer_name}/{task_type}/{task_id}')
     # Return a success message
     return f'Successfully published message {customer_name}/{task_type}/{task_id} to ds_{task_type}_topic topic'
-
-
 
 
 
