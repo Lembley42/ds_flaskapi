@@ -35,8 +35,7 @@ blueprints = [
     Blueprint('mongodb_task_unblock', __name__, url_prefix='/mongodb/task/unblock/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_delete', __name__, url_prefix='/mongodb/task/delete/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_schedule', __name__, url_prefix='/mongodb/task/schedule/<db>/<collection>/<task_id>'),
-    Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<task_id>'),
-    Blueprint('mongodb_task_create_by_key', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<key>'),
+    Blueprint('mongodb_task_create', __name__, url_prefix='/mongodb/task/create/<db>/<collection>/<key>'),
     Blueprint('mongodb_task_exists', __name__, url_prefix='/mongodb/task/exists/<db>/<collection>/<task_id>'),
     Blueprint('mongodb_task_log', __name__, url_prefix='/mongodb/task/log/<db>/<collection>/<task_id>'),
     Blueprint('pubsub_publish', __name__, url_prefix='/pubsub/publish/<customer_name>/<task_type>/<task_id>')
@@ -188,22 +187,8 @@ def Schedule_Task(db, collection, task_id):
     return f'Successfully scheduled task {task_id}'
 
 
-@app.route('/mongodb/task/create/<db>/<collection>/<task_id>', methods=['POST'])
-def Create_Task_By_ID(db, collection, task_id):
-    # Select the database
-    db = mongoclient_tasks[db]
-    # Select the collection
-    collection = db[collection]
-    # Get the task document
-    task = request.get_json()
-    # Create the task document
-    collection.insert_one(task)
-    # Return a success message
-    return f'Successfully created task {task_id}'
-
-
 @app.route('/mongodb/task/create/<db>/<collection>/<key>', methods=['POST'])
-def Create_Task_By_Key(db, collection, key):
+def Create_Task(db, collection, key):
     # Select the database
     db = mongoclient_tasks[db]
     # Select the collection
