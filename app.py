@@ -210,19 +210,15 @@ def Create_Task_By_Key(db, collection, key):
     collection = db[collection]
     # Get the task document
     task = request.get_json()
-    print(task)
     # Query the database for an existing task document with the given key and value
     query = {key: task[key]}
     existing_task = collection.find_one(query)
-    print(existing_task)
-    # If a task document exists, return an error message
-    if existing_task:
-        return f'Task with {key}:{task[key]} already exists'
+    # If a task document does not exist, create the task document
+    if not existing_task:
+        result = collection.insert_one(task)
+        return f'Successfully created task Key:{key} TaskKey:{task[key]} Task:{task} Query:{query}'
     else:
-        # If a task document does not exist, create the task document
-        collection.insert_one(task)
-    # Return a success message
-    return f'Successfully created task'
+        return f'Task already exists'
 
 
 
