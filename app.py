@@ -72,7 +72,7 @@ def Upload_MongoDB(db, collection):
     return f'Successfully uploaded JSON documents to {collection} collection'
 
 
-@app.route('/mongodb//storage/query/<db>/<collection>/<query>')
+@app.route('/mongodb/storage/query/<db>/<collection>/<query>')
 def Query_MongoDB(db, collection, query):
     # Decode the query string
     query = unquote(query)
@@ -203,7 +203,7 @@ def Create_Task_By_ID(db, collection, task_id):
 
 
 @app.route('/mongodb/task/create/<db>/<collection>/<key>', methods=['POST'])
-def Create_Task_By_Key(db, collection, task_id, key, value):
+def Create_Task_By_Key(db, collection, key):
     # Select the database
     db = mongoclient_tasks[db]
     # Select the collection
@@ -217,11 +217,11 @@ def Create_Task_By_Key(db, collection, task_id, key, value):
     print(existing_task)
     # If a task document exists, return an error message
     if existing_task:
-        return f'Task with {key} {value} already exists'
+        return f'Task with {key}:{task[key]} already exists'
     # If a task document does not exist, create the task document
     collection.insert_one(task)
     # Return a success message
-    return f'Successfully created task {task_id}'
+    return f'Successfully created task'
 
 
 
