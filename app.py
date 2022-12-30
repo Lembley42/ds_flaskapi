@@ -47,7 +47,7 @@ for blueprint in blueprints:
 
 # Connect to the MongoDB server
 mongoclient_tasks = pymongo.MongoClient(f"mongodb+srv://{MONGO_USER}:{MONGO_PASS}@datastack-mongodb-tasks.yt2p9sd.mongodb.net/?retryWrites=true&w=majority")
-mongoclient_store = pymongo.MongoClient(f'mongodb+srv://{MONGO_STORE_USER}:{MONGO_STORE_PASS}@datastack-mongodb-528cfa2f.mongo.ondigitalocean.com/datastack-mongodb-storage?replicaSet=datastack-mongodb&tls=true&authSource=admin')
+#mongoclient_store = pymongo.MongoClient(f'mongodb+srv://{MONGO_STORE_USER}:{MONGO_STORE_PASS}@datastack-mongodb-528cfa2f.mongo.ondigitalocean.com/datastack-mongodb-storage?replicaSet=datastack-mongodb&tls=true&authSource=admin')
 
 # Connect to Google Services
 pubsub = PubSub(PROJECT_ID)
@@ -61,9 +61,9 @@ pubsub = PubSub(PROJECT_ID)
 @app.route('/mongodb/storage/upload/<db>/<collection>', methods=['POST'])
 def Upload_MongoDB(db, collection):
     # Select the database
-    db = mongoclient_store[db]
+    db = mongoclient_tasks[db]
     # Select the collection
-    collection = db[collection]
+    collection = db[f'{collection}_storage']
     # Get the data from the request
     documents = request.get_json()
     # Insert the data into the collection
@@ -79,9 +79,9 @@ def Query_MongoDB(db, collection, query):
     # Convert the query string to a dictionary
     query = json.loads(query)
     # Select the database 
-    db = mongoclient_store[db]
+    db = mongoclient_tasks[db]
     # Perform the query and store the results in a cursor
-    cursor = db[collection].find(query)
+    cursor = db[f'{collection}_storage'].find(query)
     # Convert the cursor to a list of documents
     results = list(cursor)
     # Convert with custom JSONEncoder to JSON
