@@ -201,7 +201,7 @@ def Create_Task(db, collection, key):
     # If a task document does not exist, create the task document
     if not existing_task:
         result = collection.insert_one(task)
-        return f'Successfully created task Key:{key} TaskKey:{task[key]} Task:{task} Query:{query}'
+        return f'Successfully created task'
     else:
         return f'Task already exists'
 
